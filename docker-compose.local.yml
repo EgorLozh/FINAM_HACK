@@ -1,0 +1,36 @@
+services:
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: chroma_db_local
+    volumes:
+      - chroma_data:/chroma/.chroma/index
+    environment:
+      - IS_PERSISTENT=TRUE
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/heartbeat || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: finam_hack_app_local
+    command: >
+      bash -c "poetry run uvicorn app.api.fast_api:create_app --host 0.0.0.0 --port 8000 --reload --no-access-log"
+    volumes:
+      - ./app_analytics:/app_analytics/app_analytics
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      chroma:
+        condition: service_healthy
+
+volumes:
+  chroma_data:
+    driver: local
