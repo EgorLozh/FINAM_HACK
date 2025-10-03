@@ -1,7 +1,7 @@
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPBearer
 
-from app.core.config import settings
+from app_analytics.core.config import settings
 
 security = HTTPBearer()
 

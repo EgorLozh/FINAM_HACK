@@ -27,4 +27,4 @@ RUN poetry install --no-root --no-interaction --no-ansi
 # Копируем остальной код приложения (с учетом .dockerignore)
 COPY . .
 
-CMD ["poetry", "run", "uvicorn", "app.api.fast_api:create_app", "--host", "0.0.0.0", "--port", "7111"]
+CMD ["poetry", "run", "uvicorn", "app_analyze.api.fast_api:create_app", "--host", "0.0.0.0", "--port", "7111"]
