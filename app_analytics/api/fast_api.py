@@ -7,7 +7,6 @@ from fastapi import FastAPI
 from app_analytics.api.v1 import api_v1_router
 from app_analytics.api.v1.middlewares.logging import RequestLoggerMiddleware
 from app_analytics.core.config import settings
-from app_analytics.core.http_client import close_global_httpx_client, init_global_httpx_client
 from app_analytics.core.logging import setup_logging
 
 setup_logging()
@@ -18,8 +17,6 @@ logger = logging.getLogger(__name__)
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup
     logger.info("Application startup: Calling init_global_httpx_client...")
-    # Инициализируем HTTP клиент
-    await init_global_httpx_client()
 
     logger.info(
         "Application startup complete (main lifespan).",
@@ -30,7 +27,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Shutdown
     logger.info("Application shutdown: Calling close_global_httpx_client...")
-    await close_global_httpx_client()
 
     logger.info("Application shutdown (main lifespan).")
 
