@@ -17,7 +17,9 @@ class Event(Base):
     counter: Mapped[int] = mapped_column(Integer, default=1, nullable=False)  # сколько подобных новостей
     hotness: Mapped[Optional[float]] = mapped_column(Float, nullable=True)  # горячесть
     links: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(500)), default=list)  # откуда (источники)
-    tags: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(100)), default=list)  # о каких инструментах событие
+    tickets: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(20)), default=list)  # о каких тикерах событие
+    countries: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(100)), default=list)  # о каких странах событие
+    sectors: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(100)), default=list)  # о каких секторах событие
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), 
