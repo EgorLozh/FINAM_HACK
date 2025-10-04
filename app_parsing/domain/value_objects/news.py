@@ -6,6 +6,6 @@ from datetime import datetime
 class New:
     headline: str
     body: str
-    timestamp: datetime
+    created_at: datetime
     source: str
     url: str

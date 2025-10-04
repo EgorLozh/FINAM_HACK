@@ -14,7 +14,7 @@ class BaseSingleton(ABC, Generic[CT]):
 
 
 class Settings(BaseSettings, BaseSingleton["Settings"]):
-    LOG_LEVEL: str = Field("INFO", description="Logging level for the application")`
+    LOG_LEVEL: str = Field("INFO", description="Logging level for the application")
 
     # PostgreSQL connection settings
     POSTGRES_HOST: str
