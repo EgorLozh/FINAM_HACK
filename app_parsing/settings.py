@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     TELEGRAM_CHANNELS: list[str] = ["@naurys_home"]
 
+    INTERNAL_API_TOKEN: str = ""
+
     @property
     def celery_broker_url(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"

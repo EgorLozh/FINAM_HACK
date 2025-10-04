@@ -74,4 +74,4 @@ def _init_database() -> None:
     Инициализировать глобальный экземпляр базы данных.
     """
     global _database
-    _database = Database(url=settings.postgres_url, ro_url=settings.postgres_url)
+    _database = Database(url=settings.POSTGRES_URL, ro_url=settings.POSTGRES_URL)
