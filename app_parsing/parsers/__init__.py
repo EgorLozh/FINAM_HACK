@@ -3,6 +3,8 @@ from app_parsing.parsers.rbc import RbcParser
 
 from app_parsing.settings import settings
 from app_parsing.parsers.telegram import TelegramParser
+from app_parsing.parsers.moex_rss import MoexRssParser
+from app_parsing.parsers.interfax import InterfaxParser
 
 _parser_manager = None
 
@@ -19,6 +21,16 @@ def init_parser_manager() -> ParsersManager:
     parser_manager.add_parser(
         key="rbc",
         parser=RbcParser(
+        )
+    )
+    parser_manager.add_parser(
+        key="moex_rss",
+        parser=MoexRssParser(
+        )
+    )
+    parser_manager.add_parser(
+        key="interfax",
+        parser=InterfaxParser(
         )
     )
 
