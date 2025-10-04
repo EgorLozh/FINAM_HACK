@@ -72,23 +72,6 @@ services:
       redis:
         condition: service_healthy
 
-  celery_beat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: finam_hack_celery_beat_local
-    command: >
-      bash -c "poetry run celery -A app_parsing.celery_app beat -l INFO"
-    volumes:
-      - ./app_parsing:/app/app_parsing
-    env_file:
-      - .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
 volumes:
   chroma_data:
     driver: local
