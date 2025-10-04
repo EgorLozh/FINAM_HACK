@@ -20,6 +20,7 @@ class Event(Base):
     tickets: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(20)), default=list)  # о каких тикерах событие
     countries: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(100)), default=list)  # о каких странах событие
     sectors: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(100)), default=list)  # о каких секторах событие
+    companies: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(100)), default=list)  # о каких компаниях событие
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), 

@@ -1,5 +1,11 @@
 ## Запуск докера
 
+ENV:
+```bash
+OPENROUTER_API_KEY=''
+SERVER_URL='http://localhost:8000/api/v1/public/'
+```
+
 Для Прода:
 ```bash
 docker build -t finam-client:prod .

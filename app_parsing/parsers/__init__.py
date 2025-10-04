@@ -5,6 +5,7 @@ from app_parsing.settings import settings
 from app_parsing.parsers.telegram import TelegramParser
 from app_parsing.parsers.moex_rss import MoexRssParser
 from app_parsing.parsers.interfax import InterfaxParser
+from app_parsing.parsers.markets import MarketsParser
 
 _parser_manager = None
 
@@ -34,4 +35,8 @@ def init_parser_manager() -> ParsersManager:
         )
     )
 
+    parser_manager.add_parser(
+        key="markets",
+        parser=MarketsParser()
+    )
     return parser_manager

@@ -1,11 +1,12 @@
 from datetime import date
 import json
+import re
 from typing import List
 
 from app_analytics.domain.value_objects.news import New
 from app_analytics.infra.llm import OpenRouterService
 from app_analytics.infra.finance import YahooFinanceService, MoexService
-from app_analytics.services.data_preprocess_service.schemas import PreprocessEventSchema, InputArticleSchema
+from app_analytics.services.data_preprocess_service.schemas import PreprocessEventSchema
 
 
 class DataPreprocessService:
@@ -33,14 +34,21 @@ class DataPreprocessService:
             except Exception as e:
                 print(f"Error parsing event: {e}, data: {event_dict}")
         return preproc_events
-            
     
     async def get_events_dicts(self, article: str) -> List[dict]:
         with open('app_analytics/services/data_preprocess_service/preprocess_data_prompt.md', 'r', encoding='utf-8') as file:
             prompt_template = file.read()
         prompt = prompt_template.replace("{{ARTICLE}}", article)
         response = await self.llm_service.send_request(prompt)
-        return json.loads(response)
+        
+        # Извлекаем JSON из markdown-блока
+        match = re.search(r'```json\n(.*?)\n```', response, re.DOTALL)
+        if match:
+            json_str = match.group(1)
+        else:
+            json_str = response  # На случай, если модель вернет чистый JSON
+
+        return json.loads(json_str)
     
     async def get_market_data(self, ticker: str, country: str, from_date: str, till_date: str) -> dict:
         """

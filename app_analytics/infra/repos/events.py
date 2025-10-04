@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING
 from datetime import datetime
 
+from sqlalchemy import select
+
 from app_analytics.domain.repos import BaseEventRepo, BaseEventVectorRepo
 from app_analytics.infra.models import Event
 from app_analytics.infra.database import get_database
 from app_analytics.infra.vector_database import get_vector_database
-
 
 
 class EventRepo(BaseEventRepo):
@@ -13,11 +14,10 @@ class EventRepo(BaseEventRepo):
         self.db_manager = get_database()
 
     async def save_event(self, event: Event) -> Event:
-        model = self._to_model(event)
         async with self.db_manager.get_session() as session:
-            session.add(model)
+            session.add(event)
             await session.commit()
-            await session.refresh(model)
+            await session.refresh(event)
             return event
 
     async def get_event_by_id(self, event_id: int) -> Event | None:
@@ -46,16 +46,54 @@ class EventRepo(BaseEventRepo):
             await session.refresh(model)
             return model
 
+    async def get_events_by_date_range(self, date_from: datetime, date_to: datetime) -> list[Event]:
+        async with self.db_manager.get_session() as session:
+            stmt = (
+                select(Event)
+                .where(Event.created_at.between(date_from, date_to))
+                .order_by(Event.hotness.desc())
+            )
+            result = await session.execute(stmt)
+            return result.scalars().all()
+
 
 
 class EventVectorRepo(BaseEventVectorRepo):
+    duplication_threshold = 0.9
+    metadata_id_key = "id"
+
     def __init__(self):
         self.db_manager = get_vector_database()
+        self.client = self.db_manager.client
+        self.collection = self.client.get_or_create_collection("events")
 
     def add_event(self, event: 'Event') -> 'Event':
-        # Реализация добавления события в векторную базу данных
-        pass
+        self.collection.add(
+            ids=[str(event.id)],
+            documents=[event.content],
+            metadatas=[{self.metadata_id_key: event.id}]
+        )
+        return event
 
     def semantic_search(self, query: str, n_results: int) -> list['Event']:
         # Реализация семантического поиска в векторной базе данных
         pass
+
+    def get_id_if_duplicated(self, event_text: str) -> int | None:
+        result = self.collection.query(
+            query_texts=[event_text],
+            n_results=1,
+            include=["metadatas", "distances"]
+        )
+
+        if not result["distances"] or not result["distances"][0]:
+            return None
+
+        distance = result["distances"][0][0]
+        metadata = result["metadatas"][0][0]
+
+        similarity = 1 - distance
+        if similarity > self.duplication_threshold:
+            return metadata[self.metadata_id_key]
+
+        return None

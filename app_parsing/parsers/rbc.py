@@ -93,8 +93,8 @@ class RbcParser(BaseParser):
             if not created_at:
                 continue
 
-            # if created_at < one_hour_ago:
-            #     continue
+            if created_at < one_hour_ago:
+                continue
 
             # body
             article_tag = soup.find("article")

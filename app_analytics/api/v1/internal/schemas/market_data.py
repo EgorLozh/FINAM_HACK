@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class MarketDataSchema(BaseModel):
+        ticket: str = Field(..., description="Ticker symbol"),
         date: str = Field(..., description="Date and time in ISO 8601 format")
         open: float = Field(..., description="Opening price")
         high: float = Field(..., description="Highest price")
@@ -10,5 +11,4 @@ class MarketDataSchema(BaseModel):
         volume: int = Field(..., description="Trading volume")
 
 class PostMarketDataRequestSchema(BaseModel):
-    ticket: str = Field(..., description="Ticket symbol")
     data: list[MarketDataSchema] = Field(..., description="List of market data entries")
