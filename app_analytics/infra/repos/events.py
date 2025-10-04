@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING
 from datetime import datetime
 
+from sqlalchemy import select
+
 from app_analytics.domain.repos import BaseEventRepo, BaseEventVectorRepo
 from app_analytics.infra.models import Event
 from app_analytics.infra.database import get_database
 from app_analytics.infra.vector_database import get_vector_database
-
 
 
 class EventRepo(BaseEventRepo):
@@ -14,9 +15,9 @@ class EventRepo(BaseEventRepo):
 
     async def save_event(self, event: Event) -> Event:
         async with self.db_manager.get_session() as session:
-            session.add(model)
+            session.add(event)
             await session.commit()
-            await session.refresh(model)
+            await session.refresh(event)
             return event
 
     async def get_event_by_id(self, event_id: int) -> Event | None:
@@ -44,6 +45,16 @@ class EventRepo(BaseEventRepo):
             await session.commit()
             await session.refresh(model)
             return model
+
+    async def get_events_by_date_range(self, date_from: datetime, date_to: datetime) -> list[Event]:
+        async with self.db_manager.get_session() as session:
+            stmt = (
+                select(Event)
+                .where(Event.created_at.between(date_from, date_to))
+                .order_by(Event.hotness.desc())
+            )
+            result = await session.execute(stmt)
+            return result.scalars().all()
 
 
 

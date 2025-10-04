@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class RbcParser(BaseParser):
     base_url: str = "https://www.rbc.ru"
     section_url: str = "https://www.rbc.ru/economics/"
-    max_articles: int = 200
+    max_articles: int = 20
     delay: float = 0.5  # пауза между запросами
 
     async def parse(self) -> List[New]:
