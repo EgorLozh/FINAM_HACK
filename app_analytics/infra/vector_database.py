@@ -2,7 +2,6 @@ import chromadb
 
 from app_analytics.core.config import settings
 
-
 class VectorDatabase:
     def __init__(self, chroma_host: str, chroma_port: int) -> None:
         self.client = chromadb.HttpClient(
