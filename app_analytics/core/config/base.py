@@ -3,7 +3,7 @@ from http import HTTPStatus
 from typing import Generic, TypeVar
 
 from pydantic import Field, computed_field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 CT = TypeVar("CT")
@@ -13,20 +13,8 @@ class BaseSingleton(ABC, Generic[CT]):
     _instance: CT
 
 
-class Settings(BaseSingleton["Settings"], BaseSettings):
+class Settings(BaseSettings, BaseSingleton["Settings"]):
     LOG_LEVEL: str = Field("INFO", description="Logging level for the application")
-
-    HTTPX_TIMEOUT: float = 10.0
-    HTTPX_RETRY_TOTAL: int = 17
-    HTTPX_RETRY_BACKOFF_FACTOR: float = 5.0
-    HTTPX_RETRY_MAX_BACKOFF_WAIT: float = 120.0
-    HTTPX_RETRY_STATUS_FORCELIST: list[int] = [
-        HTTPStatus.TOO_MANY_REQUESTS,
-        HTTPStatus.INTERNAL_SERVER_ERROR,
-        HTTPStatus.BAD_GATEWAY,
-        HTTPStatus.SERVICE_UNAVAILABLE,
-        HTTPStatus.GATEWAY_TIMEOUT,
-    ]
 
     # PostgreSQL connection settings
     POSTGRES_HOST: str
@@ -39,6 +27,10 @@ class Settings(BaseSingleton["Settings"], BaseSettings):
     CHROMA_HOST: str
     CHROMA_PORT: int
     CHROMA_IS_PERSISTENT: bool = True
+
+    class Settings(BaseSettings):
+        model_config = SettingsConfigDict(env_file='.env', extra='ignore')
+    
 
     @computed_field
     @property
