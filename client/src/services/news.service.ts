@@ -5,7 +5,6 @@ class NewsService {
     const response = await api.post<any>("generate/", body);
     return response;
   }
-
 }
 
 export const newsService = new NewsService();
