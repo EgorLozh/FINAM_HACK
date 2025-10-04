@@ -10,7 +10,7 @@ class VectorDatabase:
             port=chroma_port,
         )
 
-    def get_client(self) -> chromadb.HttpClient():
+    def get_client(self) -> chromadb.HttpClient:
         return self.client
 
 

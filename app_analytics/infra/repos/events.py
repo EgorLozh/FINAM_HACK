@@ -66,13 +66,38 @@ class EventRepo(BaseEventRepo):
 
 
 class EventVectorRepo(BaseEventVectorRepo):
+    duplication_threshold = 0.9
+    metadata_id_key = "id"
+
     def __init__(self):
         self.db_manager = get_vector_database()
+        self.client = self.db_manager.client
+        self.collection = self.client.get_or_create_collection("events")
 
     def add_event(self, event: 'Event') -> 'Event':
-        # Реализация добавления события в векторную базу данных
-        pass
+        self.collection.add(
+            ids=[str(event.id)],
+            documents=[event.content],
+            metadatas=[{self.metadata_id_key: event.id}]
+        )
+        return event
 
     def semantic_search(self, query: str, n_results: int) -> list['Event']:
         # Реализация семантического поиска в векторной базе данных
         pass
+
+    def get_id_if_duplicated(self, event_text: str) -> int | None:
+        result = self.collection.query(
+            query_texts=[event_text],
+            n_results=1,
+            include=["metadatas", "distances"]
+        )
+
+        distance = result["distances"][0][0]
+        metadata = result["metadatas"][0][0]
+
+        similarity = 1 - distance
+        if similarity > self.duplication_threshold:
+            return metadata[self.metadata_id_key]
+
+        return None
