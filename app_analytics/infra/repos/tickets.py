@@ -1,26 +1,25 @@
-from typing import TYPE_CHECKING, List
-from datetime import datetime
-from app_analytics.infra.database import get_database
+from typing import List
+from sqlalchemy.future import select
 from app_analytics.infra.models import Ticket
-
+from app_analytics.infra.database import get_database
 
 class TicketsRepo:
     def __init__(self):
         self.db_manager = get_database()
 
-
-    def add_ticket(self, ticket: str, company: str) -> Ticket:
+    async def add_ticket(self, ticket: str, company: str, country: str) -> Ticket:
         """Добавить новый тикет."""
-        new_ticket = Ticket(
-            ticket=ticket,
-            company=company
-        )
-        self.db_manager.add(new_ticket)
-        self.db_manager.commit()
-        self.db_manager.refresh(new_ticket)
+        new_ticket = Ticket(ticket=ticket, company=company, country=country)
+        async with self.db_manager.get_session() as session:
+            session.add(new_ticket)
+            # commit и refresh выполняются автоматически через get_session()
+            await session.flush()  # чтобы new_ticket.id стал доступен
+            await session.refresh(new_ticket)
         return new_ticket
 
-    def get_all_tickets(self) -> List[Ticket]:
+    async def get_all_tickets(self) -> List[Ticket]:
         """Получить все тикеты."""
-        tickets = self.db_manager.query(Ticket).all()
+        async with self.db_manager.get_session() as session:
+            result = await session.execute(select(Ticket))
+            tickets = result.scalars().all()
         return tickets

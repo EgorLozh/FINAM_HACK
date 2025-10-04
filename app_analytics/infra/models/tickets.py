@@ -10,3 +10,4 @@ class Ticket(Base):
     __tablename__ = "tickets"
     company: Mapped[str] = mapped_column(String(100), primary_key=True, index=True)
     ticket: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    country: Mapped[Optional[str]] = mapped_column(Text)
