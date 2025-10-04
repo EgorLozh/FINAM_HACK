@@ -4,7 +4,7 @@ from typing import List
 
 from app_analytics.infra.llm import OpenRouterService
 from app_analytics.infra.finance import YahooFinanceService, MoexService
-from app_analytics.services.data_preprocess_service.schemas import PreprocessEventSchema
+from app_analytics.services.data_preprocess_service.schemas import PreprocessEventSchema, InputArticleSchema
 
 
 class DataPreprocessService:
@@ -13,20 +13,20 @@ class DataPreprocessService:
         self.moex_service = MoexService()
         self.llm_service = OpenRouterService()
 
-    async def preprocess_article(self, article: str) -> List[PreprocessEventSchema]:
-        events_dicts = await self.get_events_dicts(article)
+    async def preprocess_article(self, article: InputArticleSchema) -> List[PreprocessEventSchema]:
+        events_dicts = await self.get_events_dicts(article.content)
         preproc_events = []
         for event_dict in events_dicts:
             try: 
-                preproc_event = PreprocessEventSchema(**event_dict)
-                if preproc_event.ticket is "":
-                    ticker = None
-                    if "russia" in preproc_event.country.lower():
-                        ticker = self.moex_service.get_ticker_by_name(preproc_event.company)
-                    else:
-                        ticker = await self.yahoo_service.get_ticker_by_name(preproc_event.company)
-                    if ticker:
-                        preproc_event.ticket = ticker
+                preproc_event = PreprocessEventSchema(title=article.title, **event_dict)
+                if preproc_event.tickets is []:
+                    for company in preproc_event.companies:
+                        if "russia" in company.lower():
+                            ticket = self.moex_service.get_ticker_by_name(preproc_event.company)
+                        else:
+                            ticket = await self.yahoo_service.get_ticker_by_name(preproc_event.company)
+                        if ticket:
+                            preproc_event.tickets.append(ticket)
                     
                 preproc_events.append(preproc_event)
             except Exception as e:
