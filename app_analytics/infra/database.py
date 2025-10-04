@@ -4,9 +4,14 @@ from typing import Any, AsyncGenerator
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
+from sqlalchemy.ext.declarative import declarative_base
 
 from app_analytics.core.config import settings
 
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
 
 class Database:
     def __init__(self, url: str, ro_url: str) -> None:
