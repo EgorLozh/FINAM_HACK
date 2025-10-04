@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import time
@@ -10,6 +11,9 @@ from dateutil import parser as dateparser
 
 from app_parsing.domain.value_objects.news import New
 from app_parsing.parsers.base import BaseParser
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

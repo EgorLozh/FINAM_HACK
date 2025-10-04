@@ -33,6 +33,8 @@ class Settings(BaseSettings, BaseSingleton["Settings"]):
     OPEN_ROUTER_MODEL: str
     OPEN_ROUTER_URL: str
 
+    INTERNAL_API_TOKEN: str
+
     class Settings(BaseSettings):
         model_config = SettingsConfigDict(env_file='.env', extra='ignore')
     
