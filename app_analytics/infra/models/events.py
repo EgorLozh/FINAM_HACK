@@ -4,7 +4,7 @@ from typing import List, Optional
 from sqlalchemy import String, DateTime, Text, Integer, Float, ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app_analytics.core.database import Base
+from app_analytics.infra.database import Base
 
 
 class Event(Base):
