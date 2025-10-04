@@ -23,6 +23,7 @@ export interface Message {
 export interface AIChatProps {
   dateRange: { from: Date | undefined; to: Date | undefined };
   selectedTickers: string[];
+  sampleNews: NewsItem[];
 }
 
 // Новости

@@ -14,8 +14,15 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
+import ReactMarkdown from "react-markdown";
+import { Textarea } from "../ui/textarea";
+import remarkGfm from "remark-gfm";
 
-export function AIChat({ dateRange, selectedTickers }: AIChatProps) {
+export function AIChat({
+  dateRange,
+  selectedTickers,
+  sampleNews,
+}: AIChatProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -40,13 +47,42 @@ export function AIChat({ dateRange, selectedTickers }: AIChatProps) {
     if (selectedTickers?.length > 0) {
       context += `Выбранные тикеры: ${selectedTickers.join(", ")}. `;
     }
+    if (sampleNews?.length > 0) {
+      context += `Новости: ${sampleNews
+        .map(
+          (news: any) =>
+            news.headline +
+            " " +
+            news.why_now +
+            " " +
+            news.entities +
+            " " +
+            news.sources +
+            " " +
+            news.timeline +
+            " " +
+            news.draft
+        )
+        .join(", ")}. `;
+    }
+    // const fullMessage = context ? `${context}\n${input.trim()}` : input.trim();
 
-    const fullMessage = context ? `${context}\n${input.trim()}` : input.trim();
+    // const userMessage = {
+    //   id: crypto.randomUUID(),
+    //   role: "user",
+    //   parts: [{ type: "text", text: fullMessage }],
+    // };
+
+    const systemContextMessage = {
+      id: crypto.randomUUID(),
+      role: "system",
+      parts: [{ type: "text", text: context.trim() }],
+    };
 
     const userMessage = {
       id: crypto.randomUUID(),
       role: "user",
-      parts: [{ type: "text", text: fullMessage }],
+      parts: [{ type: "text", text: input.trim() }],
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -62,7 +98,7 @@ export function AIChat({ dateRange, selectedTickers }: AIChatProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: [userMessage],
+          messages: [systemContextMessage, userMessage],
         }),
       });
 
@@ -91,7 +127,7 @@ export function AIChat({ dateRange, selectedTickers }: AIChatProps) {
   };
 
   return (
-    <div className="flex flex-col h-[560px]">
+    <div className="flex flex-col h-[580px] relative">
       <div className="space-y-4">
         <Conversation className="relative w-full" style={{ height: "500px" }}>
           <ConversationContent>
@@ -103,7 +139,6 @@ export function AIChat({ dateRange, selectedTickers }: AIChatProps) {
               />
             ) : (
               messages.map((message) => {
-
                 let content = "";
 
                 if (Array.isArray(message.parts)) {
@@ -119,8 +154,10 @@ export function AIChat({ dateRange, selectedTickers }: AIChatProps) {
                     key={message.id}
                   >
                     <MessageContent>
-                      {content ||
-                        "AI не смог сгенерировать ответ. Попробуйте еще раз."}
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {content ||
+                          "AI не смог сгенерировать ответ. Попробуйте еще раз."}
+                      </ReactMarkdown>
                     </MessageContent>
                   </Message>
                 );
@@ -139,9 +176,9 @@ export function AIChat({ dateRange, selectedTickers }: AIChatProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
-        <Input
+        <Textarea
           value={input}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             setInput(e.target.value)
           }
           placeholder="Задайте вопрос..."
