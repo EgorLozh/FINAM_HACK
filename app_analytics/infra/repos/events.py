@@ -13,7 +13,6 @@ class EventRepo(BaseEventRepo):
         self.db_manager = get_database()
 
     async def save_event(self, event: Event) -> Event:
-        model = self._to_model(event)
         async with self.db_manager.get_session() as session:
             session.add(model)
             await session.commit()
@@ -75,6 +74,9 @@ class EventVectorRepo(BaseEventVectorRepo):
             n_results=1,
             include=["metadatas", "distances"]
         )
+
+        if not result["distances"] or not result["distances"][0]:
+            return None
 
         distance = result["distances"][0][0]
         metadata = result["metadatas"][0][0]

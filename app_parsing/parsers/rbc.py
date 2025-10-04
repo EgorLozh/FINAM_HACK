@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class RbcParser(BaseParser):
     base_url: str = "https://www.rbc.ru"
     section_url: str = "https://www.rbc.ru/economics/"
-    max_articles: int = 20
+    max_articles: int = 200
     delay: float = 0.5  # пауза между запросами
 
     async def parse(self) -> List[New]:
@@ -93,8 +93,8 @@ class RbcParser(BaseParser):
             if not created_at:
                 continue
 
-            # if created_at < one_hour_ago:
-            #     continue
+            if created_at < one_hour_ago:
+                continue
 
             # body
             article_tag = soup.find("article")
