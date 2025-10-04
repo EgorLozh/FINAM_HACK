@@ -94,6 +94,9 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# poetry
+poetry.lock
+
 # Environments
 .env
 .env.*
@@ -151,3 +154,8 @@ Thumbs.db
 
 # uv cache
 .uv_cache/
+
+/client/node_modules
+/client/.next
+/client/.env
+/client/.env.local

@@ -28,6 +28,21 @@ class Settings(BaseSettings, BaseSingleton["Settings"]):
     CHROMA_PORT: int
     CHROMA_IS_PERSISTENT: bool = True
 
+    # OpenRouter API settings
+    OPEN_ROUTER_API_KEY: str
+    OPEN_ROUTER_MODEL: str
+    OPEN_ROUTER_URL: str
+
+    INTERNAL_API_TOKEN: str
+
+    # Clickhouse
+    CLICKHOUSE_HOST: str
+    CLICKHOUSE_PORT: int = 8123
+    CLICKHOUSE_DB: str
+    CLICKHOUSE_USER: str
+    CLICKHOUSE_PASSWORD: str
+    CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: int = 1
+
     class Settings(BaseSettings):
         model_config = SettingsConfigDict(env_file='.env', extra='ignore')
     
@@ -47,6 +62,15 @@ class Settings(BaseSettings, BaseSingleton["Settings"]):
             f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
+    
+    @computed_field
+    @property
+    def CLICKHOUSE_URL(self) -> str:
+        return (
+            f"clickhouse+http://{self.CLICKHOUSE_USER}:{self.CLICKHOUSE_PASSWORD}"
+            f"@{self.CLICKHOUSE_HOST}:{self.CLICKHOUSE_PORT}/{self.CLICKHOUSE_DB}"
+        )
+
 
     @computed_field
     @property

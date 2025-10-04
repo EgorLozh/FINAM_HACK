@@ -3,10 +3,12 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
+import asyncio
 
 from app_analytics.api.v1 import api_v1_router
 from app_analytics.api.v1.middlewares.logging import RequestLoggerMiddleware
 from app_analytics.core.config import settings
+from app_analytics.infra.clickhouse_models.market_data import create_market_data_table
 from app_analytics.core.logging import setup_logging
 
 setup_logging()
@@ -14,9 +16,14 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI):
     # Startup
     logger.info("Application startup: Calling init_global_httpx_client...")
+
+    try:
+        await create_market_data_table()
+    except Exception as e:
+        logger.error(f"Failed to create MarketData table: {e}")
 
     logger.info(
         "Application startup complete (main lifespan).",
@@ -26,8 +33,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     yield  # Application runs here
 
     # Shutdown
-    logger.info("Application shutdown: Calling close_global_httpx_client...")
-
     logger.info("Application shutdown (main lifespan).")
 
 

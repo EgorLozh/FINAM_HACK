@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   chroma:
     image: chromadb/chroma:latest
@@ -24,6 +26,22 @@ services:
       timeout: 5s
       retries: 5
 
+  clickhouse:
+    image: clickhouse/clickhouse-server:23
+    container_name: clickhouse_local
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ports:
+      - "9000:9000"   # TCP порт для клиента
+      - "8123:8123"   # HTTP интерфейс
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1' | clickhouse-client --multiquery"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     build:
       context: .
@@ -33,7 +51,7 @@ services:
       bash -c "poetry run uvicorn app_analytics.api.fast_api:create_app --host 0.0.0.0 --port 8000 --reload --no-access-log"
     volumes:
       - ./app_analytics:/app_analytics/app_analytics
-      - ./alembic:/app/alembic  # Исправьте этот путь
+      - ./alembic:/app/alembic
     ports:
       - "8000:8000"
     env_file:
@@ -43,6 +61,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      clickhouse:
+        condition: service_healthy
 
   redis:
     image: redis:7-alpine
@@ -71,9 +91,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      clickhouse:
+        condition: service_healthy
 
 volumes:
   chroma_data:
     driver: local
   postgres_data:
+    driver: local
+  clickhouse_data:
     driver: local
