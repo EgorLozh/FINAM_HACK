@@ -28,6 +28,11 @@ class Settings(BaseSettings, BaseSingleton["Settings"]):
     CHROMA_PORT: int
     CHROMA_IS_PERSISTENT: bool = True
 
+    # OpenRouter API settings
+    OPEN_ROUTER_API_KEY: str
+    OPEN_ROUTER_MODEL: str
+    OPEN_ROUTER_URL: str
+
     class Settings(BaseSettings):
         model_config = SettingsConfigDict(env_file='.env', extra='ignore')
     
